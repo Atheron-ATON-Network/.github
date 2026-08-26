@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security issue
+    url: mailto:security@aton-network.org
+    about: Report privately. Never open a public issue for a security problem.
+  - name: Questions and discussion
+    url: https://aton-network.org
+    about: The project is closed to outside contributions during development. Community links are on the site.

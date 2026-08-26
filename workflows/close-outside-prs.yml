@@ -1,0 +1,41 @@
+# Closes pull requests from outside the core team, politely, with the reason.
+# Called by every repository. Reviewers should not have to police this by hand.
+name: close-outside-prs
+
+on:
+  workflow_call:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const assoc = context.payload.pull_request.author_association;
+            const insider = ['OWNER', 'MEMBER', 'COLLABORATOR'].includes(assoc);
+            if (insider) {
+              core.info(`author_association=${assoc}, leaving this one alone`);
+              return;
+            }
+
+            const body = [
+              'Thanks for taking the time on this, and sorry for the automated reply.',
+              '',
+              'Atheroin is closed to outside pull requests while it is pre-testnet, so this is being closed without review. It is not about the quality of the change. Consensus parameters are still moving, the cross-VM router interface changes most weeks, and several contracts here are queued for independent audit. Merging outside work into that either means accepting code nobody can properly review yet, or leaving your branch open for months. Neither is fair to you.',
+              '',
+              'This has a defined end. When the spec stabilises and the first audits are back, the repositories scheduled to go public open up with real contribution guidelines behind them.',
+              '',
+              'If what you found is a security issue, please email security@aton-network.org instead. Those reports are always welcome and are read by a person.',
+              '',
+              'Details are on the [organization profile](https://github.com/Atheroin-ATON-Network).',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              ...context.repo, issue_number: context.issue.number, body,
+            });
+            await github.rest.pulls.update({
+              ...context.repo, pull_number: context.issue.number, state: 'closed',
+            });

@@ -1,0 +1,43 @@
+# Keeps .atheroin/progress.json honest. The public completion percentage is
+# summed from these files across the org, so a malformed or dishonest one
+# shows up on the website.
+name: progress-valid
+
+on:
+  workflow_call:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate progress file
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = '.atheroin/progress.json';
+          if (!fs.existsSync(path)) {
+            console.error('::error::.atheroin/progress.json is missing');
+            process.exit(1);
+          }
+          const p = JSON.parse(fs.readFileSync(path, 'utf8'));
+          const fail = m => { console.error('::error file=' + path + '::' + m); process.exit(1); };
+
+          for (const k of ['repo', 'group', 'ssot_sections', 'items']) {
+            if (!(k in p)) fail('missing key: ' + k);
+          }
+          if (!Array.isArray(p.items)) fail('items must be an array');
+
+          const states = ['planned', 'in_progress', 'done', 'blocked', 'audit_pending'];
+          for (const [i, it] of p.items.entries()) {
+            if (!it.id)    fail('items[' + i + '] has no id');
+            if (!it.title) fail('items[' + i + '] has no title');
+            if (!states.includes(it.state)) fail('items[' + i + '] state must be one of: ' + states.join(', '));
+            if (typeof it.weight !== 'number' || it.weight <= 0) fail('items[' + i + '] needs a positive numeric weight');
+            if (it.state === 'done' && !it.completed) fail('items[' + i + '] is done but has no completed date');
+            if (it.audit_required && it.state === 'done') {
+              fail('items[' + i + '] requires an independent audit and cannot be marked done. Use audit_pending.');
+            }
+          }
+          console.log('progress.json valid: ' + p.items.length + ' items');
+          NODE

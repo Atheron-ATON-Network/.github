@@ -1,0 +1,52 @@
+# Every pull request has to explain itself in plain English.
+# Repositories call this from their own ci.yml rather than copying it around.
+name: changelog-required
+
+on:
+  workflow_call:
+
+jobs:
+  entry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Look for a new changelog entry
+        run: |
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+          added=$(git diff --name-only --diff-filter=A "$base" "$head" -- 'changelog/*.md' || true)
+
+          if [ -z "$added" ]; then
+            echo "::error::This pull request does not add a changelog entry."
+            echo ""
+            echo "Add changelog/$(date +%Y-%m-%d)-your-slug.md containing:"
+            echo ""
+            echo "  ---"
+            echo "  title: Short plain description"
+            echo "  type: added | changed | fixed | security | removed"
+            echo "  ssot: [\"5\"]"
+            echo "  ---"
+            echo ""
+            echo "  **What changed.** ..."
+            echo "  **Why.** ..."
+            echo "  **What it means for the project.** ..."
+            echo ""
+            echo "The public site renders this as written. It is read by people who do not read code."
+            exit 1
+          fi
+
+          for f in $added; do
+            echo "checking $f"
+            head -1 "$f" | grep -q '^---$'      || { echo "::error file=$f::missing frontmatter block"; exit 1; }
+            grep -q '^title:' "$f"              || { echo "::error file=$f::missing title"; exit 1; }
+            grep -qE '^type: (added|changed|fixed|security|removed)$' "$f" \
+              || { echo "::error file=$f::type must be one of added, changed, fixed, security, removed"; exit 1; }
+            grep -q '^ssot:' "$f"               || { echo "::error file=$f::missing ssot section reference"; exit 1; }
+            grep -q '\*\*What changed\.\*\*' "$f"                  || { echo "::error file=$f::needs a 'What changed.' paragraph"; exit 1; }
+            grep -q '\*\*Why\.\*\*' "$f"                           || { echo "::error file=$f::needs a 'Why.' paragraph"; exit 1; }
+            grep -q '\*\*What it means for the project\.\*\*' "$f" || { echo "::error file=$f::needs a 'What it means for the project.' paragraph"; exit 1; }
+          done
+          echo "changelog entry looks good"
