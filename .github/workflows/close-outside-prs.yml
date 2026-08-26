@@ -24,13 +24,13 @@ jobs:
             const body = [
               'Thanks for taking the time on this, and sorry for the automated reply.',
               '',
-              'Atheroin is closed to outside pull requests while it is pre-testnet, so this is being closed without review. It is not about the quality of the change. Consensus parameters are still moving, the cross-VM router interface changes most weeks, and several contracts here are queued for independent audit. Merging outside work into that either means accepting code nobody can properly review yet, or leaving your branch open for months. Neither is fair to you.',
+              'Atheron is closed to outside pull requests while it is pre-testnet, so this is being closed without review. It is not about the quality of the change. Consensus parameters are still moving, the cross-VM router interface changes most weeks, and several contracts here are queued for independent audit. Merging outside work into that either means accepting code nobody can properly review yet, or leaving your branch open for months. Neither is fair to you.',
               '',
               'This has a defined end. When the spec stabilises and the first audits are back, the repositories scheduled to go public open up with real contribution guidelines behind them.',
               '',
               'If what you found is a security issue, please email security@aton-network.org instead. Those reports are always welcome and are read by a person.',
               '',
-              'Details are on the [organization profile](https://github.com/Atheroin-ATON-Network).',
+              'Details are on the [organization profile](https://github.com/Atheron-ATON-Network).',
             ].join('\n');
 
             await github.rest.issues.createComment({

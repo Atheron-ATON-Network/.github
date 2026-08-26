@@ -1,6 +1,6 @@
 <div align="center">
 
-# Atheroin · ATON
+# Atheron · ATON
 
 **A GhostDAG Layer 1 with two mining lanes, two virtual machines, and a GPU network that mines and computes at the same time.**
 
@@ -16,7 +16,7 @@
 
 Any pull request from outside the core team will be closed without review, and the branch removed from our forks. That sounds blunt written down, so here is the actual reason.
 
-Atheroin is pre-testnet. Consensus parameters are unfixed, the cross-VM router interface changes most weeks, and five of these repositories contain contracts that will move real value and are scheduled for independent third-party audit. Taking outside changes into that codebase right now means either we merge code that nobody can properly review yet, or we leave a contributor's work sitting open for months. Neither is a good outcome for anyone.
+Atheron is pre-testnet. Consensus parameters are unfixed, the cross-VM router interface changes most weeks, and five of these repositories contain contracts that will move real value and are scheduled for independent third-party audit. Taking outside changes into that codebase right now means either we merge code that nobody can properly review yet, or we leave a contributor's work sitting open for months. Neither is a good outcome for anyone.
 
 This is temporary and it has a defined end. When the protocol specification is stable and the first audits come back, the repositories marked for public release open up with real contribution guidelines, a review rota, and maintainers who can actually give your work the time it deserves.
 
@@ -26,13 +26,13 @@ This is temporary and it has a defined end. When the protocol specification is s
 
 ## What is being built
 
-**Atheroin Chain.** GhostDAG ordering, targeting a high block rate from genesis rather than starting slow and upgrading later. Two independent proof-of-work lanes, one for ASICs and one built to be memory-hard on GPUs, with independent difficulty retargeting and a dampener so neither lane can dominate the other. Account-based state rather than UTXO, because a real smart contract platform needs it.
+**Atheron Chain.** GhostDAG ordering, targeting a high block rate from genesis rather than starting slow and upgrading later. Two independent proof-of-work lanes, one for ASICs and one built to be memory-hard on GPUs, with independent difficulty retargeting and a dampener so neither lane can dominate the other. Account-based state rather than UTXO, because a real smart contract platform needs it.
 
 **Two execution engines.** EVM bytecode runs unmodified, so existing Solidity, MetaMask and Hardhat and Foundry workflows work on day one. Alongside it, a native WASM engine with direct access to protocol precompiles for staking, mining statistics and compute job submission. A router sits between them.
 
 **Compute Mesh.** Consumer and prosumer GPUs earn ATON for two things at once: mining the GPU lane, and running inference jobs. Jobs execute redundantly across staked nodes and a majority has to agree on the result hash before anyone gets paid. It is open to third-party workloads from mainnet, not reserved for our own.
 
-**Atheroin AI.** A non-custodial trading agent. Exchange API keys are encrypted and stay on the user's machine, always. It never holds funds and never places a trade of its own. Every decision it produces is committed on-chain as a receipt, so the track record is verifiable by anyone rather than self-reported by us.
+**Atheron AI.** A non-custodial trading agent. Exchange API keys are encrypted and stay on the user's machine, always. It never holds funds and never places a trade of its own. Every decision it produces is committed on-chain as a receipt, so the track record is verifiable by anyone rather than self-reported by us.
 
 **Native DEX.** An order book for major pairs plus AMM pools for the long tail. Spot only at launch. Derivatives are deliberately deferred, not quietly planned.
 
@@ -49,7 +49,7 @@ Most of this org is private while we build. Each repository has a stated point a
 | **Developer** sdk-rs · sdk-ts · spec · docs | at public testnet |
 | **Product** desktop · explorer | at mainnet |
 | **Product** site · portal · discord · telegram | stays private, these hold billing and moderation internals |
-| **atheroin-ai** | stays private, permanently |
+| **atheron-ai** | stays private, permanently |
 
 The trading engine is the one piece we are not open-sourcing. It is the product the subscription pays for and the primary paying customer of the compute network. Everything the chain needs in order to run without us is going public.
 
@@ -74,5 +74,5 @@ Progress against the build plan updates on every merge, at **[aton-network.org/b
 ---
 
 <div align="center">
-<sub>Atheroin is a British Columbia corporation. Nothing in this organization is investment advice, and no part of it should be read as a legal opinion on ATON's regulatory status.</sub>
+<sub>Atheron is a British Columbia corporation. Nothing in this organization is investment advice, and no part of it should be read as a legal opinion on ATON's regulatory status.</sub>
 </div>

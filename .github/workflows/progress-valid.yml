@@ -1,4 +1,4 @@
-# Keeps .atheroin/progress.json honest. The public completion percentage is
+# Keeps .atheron/progress.json honest. The public completion percentage is
 # summed from these files across the org, so a malformed or dishonest one
 # shows up on the website.
 name: progress-valid
@@ -15,9 +15,9 @@ jobs:
         run: |
           node - <<'NODE'
           const fs = require('fs');
-          const path = '.atheroin/progress.json';
+          const path = '.atheron/progress.json';
           if (!fs.existsSync(path)) {
-            console.error('::error::.atheroin/progress.json is missing');
+            console.error('::error::.atheron/progress.json is missing');
             process.exit(1);
           }
           const p = JSON.parse(fs.readFileSync(path, 'utf8'));
