@@ -1,0 +1,58 @@
+# Hands the fuzzing machine a fresh copy of the source after every push.
+#
+# The machine holds no GitHub credential of its own. That is deliberate: it
+# runs code it has never seen against inputs nobody chose, which is exactly
+# the machine you least want holding a key to the source. So the source is
+# pushed to it instead of pulled by it.
+#
+# The key this uses is pinned to a single command on the far side and cannot
+# open a shell, so what it grants is "replace the copy of this repository we
+# scan" and nothing else.
+
+name: send-to-fuzzing
+
+on:
+  workflow_call:
+    inputs:
+      repo:
+        description: Directory name the fuzzing machine keeps this source under
+        required: true
+        type: string
+    secrets:
+      FUZZ_SSH_KEY:
+        required: true
+      FUZZ_HOST:
+        required: true
+      FUZZ_KNOWN_HOSTS:
+        required: true
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare the key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s' "${{ secrets.FUZZ_SSH_KEY }}" > ~/.ssh/fuzz
+          # A key file that ends without a newline is rejected by ssh with a
+          # message about the format rather than the newline, which is a
+          # miserable half hour if you have not hit it before.
+          [ -n "$(tail -c1 ~/.ssh/fuzz)" ] && echo >> ~/.ssh/fuzz
+          chmod 600 ~/.ssh/fuzz
+          printf '%s\n' "${{ secrets.FUZZ_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Send the source
+        run: |
+          # The host key is pinned, so this fails loudly rather than quietly
+          # handing our source to whoever answers on that address.
+          tar --exclude=.git --exclude=node_modules --exclude=.next \
+              --exclude=dist --exclude=target -czf - . \
+            | ssh -i ~/.ssh/fuzz -o BatchMode=yes -o StrictHostKeyChecking=yes \
+                  root@"${{ secrets.FUZZ_HOST }}" "${{ inputs.repo }}"
+
+      - name: Forget the key
+        if: always()
+        run: rm -f ~/.ssh/fuzz
